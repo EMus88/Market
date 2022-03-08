@@ -1,0 +1,14 @@
+host: "localhost"
+port: "8000"
+
+db: 
+    username: "postgres"
+    host: "localhost"
+    port: "5432"
+    dbname: "market"
+    sslmode: "disable"
+
+    migration:
+                isAllowed: true
+
+
