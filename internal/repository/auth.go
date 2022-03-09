@@ -1,10 +1,11 @@
 package repository
 
 import (
-	"JWT_auth/internal/models"
 	"context"
 	"errors"
 	"strings"
+
+	"github.com/EMus88/Market/internal/models"
 
 	"github.com/gofrs/uuid"
 )

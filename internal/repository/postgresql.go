@@ -1,10 +1,11 @@
 package repository
 
 import (
-	"JWT_auth/internal/models"
 	"context"
 	"fmt"
 	"os"
+
+	"github.com/EMus88/Market/internal/models"
 
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"

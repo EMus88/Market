@@ -1,4 +1,189 @@
+basePath: /
+definitions:
+  models.Admin:
+    properties:
+      code:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      username:
+        type: string
+    required:
+    - code
+    - password
+    - phone
+    - username
+    type: object
+  models.Category:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  models.ProductDTO:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      photo:
+        items:
+          type: string
+        type: array
+      price:
+        type: number
+      valume:
+        type: number
+      visible:
+        type: boolean
+      weight:
+        type: number
+    required:
+    - name
+    - price
+    - valume
+    - weight
+    type: object
+  models.User:
+    properties:
+      password:
+        type: string
+      phone:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - phone
+    - username
+    type: object
+  models.Visible:
+    properties:
+      name:
+        type: string
+      visible:
+        type: boolean
+    required:
+    - name
+    type: object
+host: localhost:8000
 info:
   contact: {}
-paths: {}
+  description: API Server for catalog of internet-shop
+  title: Internet-shop API
+  version: "1.0"
+paths:
+  /auth/admin:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Admin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Add administrator
+      tags:
+      - auth
+  /auth/signUp:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Registration
+      tags:
+      - auth
+  /catalog/category:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: new category name
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Category'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Add category
+      tags:
+      - catalog
+  /catalog/product:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: product info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.ProductDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Add product
+      tags:
+      - catalog
+  /catalog/product/change:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: product info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Visible'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Change visible
+      tags:
+      - catalog
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

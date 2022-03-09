@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"JWT_auth/internal/models"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/EMus88/Market/internal/models"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
@@ -71,6 +72,14 @@ func (h *Handler) IsAdminMiddleware(c *gin.Context) {
 }
 
 //add admin
+// @Summary Add administrator
+// @Tags auth
+// @Descriotion create user with adminostrator credentials
+// @Accept json
+// @Produce json
+// @Param input body models.Admin true "account info"
+// @Success 200 {object} models.User
+// @Router /auth/admin [post]
 func (h *Handler) AddAddmin(c *gin.Context) {
 	var admin models.Admin
 	//parse request
@@ -98,6 +107,14 @@ func (h *Handler) AddAddmin(c *gin.Context) {
 }
 
 //Registration
+// @Summary Registration
+// @Tags auth
+// @Descriotion autorization
+// @Accept json
+// @Produce json
+// @Param input body models.User true "account info"
+// @Success 200 {object} models.User
+// @Router /auth/signUp [post]
 func (h *Handler) SignUp(c *gin.Context) {
 	var user models.User
 	//parse request
@@ -124,14 +141,15 @@ func (h *Handler) SignUp(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// @Summary SignUp
+// Login
+// @Summary Authorization
 // @Tags auth
-// @Descriotion create account
-// @ID signIn
+// @Descriotion authorization
 // @Accept json
 // @Produce json
 // @Param input body models.User true "account info"
-// @Success 200 {object} models.user
+// @Success 200
+// @Router /auth/signIn [post]
 
 func (h *Handler) SignIn(c *gin.Context) {
 	var user models.User

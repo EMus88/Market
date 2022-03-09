@@ -1,13 +1,14 @@
 package service
 
 import (
-	"JWT_auth/internal/models"
-	"JWT_auth/internal/repository"
 	"crypto/sha1"
 	"errors"
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/EMus88/Market/internal/models"
+	"github.com/EMus88/Market/internal/repository"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofrs/uuid"

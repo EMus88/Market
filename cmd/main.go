@@ -1,10 +1,6 @@
 package main
 
 import (
-	"JWT_auth/configs"
-	"JWT_auth/internal/handler"
-	"JWT_auth/internal/repository"
-	"JWT_auth/internal/service"
 	"context"
 	"fmt"
 	"net/http"
@@ -13,9 +9,25 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/EMus88/Market/configs"
+	"github.com/EMus88/Market/internal/handler"
+	"github.com/EMus88/Market/internal/repository"
+	"github.com/EMus88/Market/internal/service"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
+
+// @title Internet-shop API
+// @version 1.0
+// @description API Server for catalog of internet-shop
+
+// @host localhost:8000
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 
 func main() {
 	//init logger
@@ -61,6 +73,6 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
-	<-time.After(time.Second * 2)
+	<-time.After(time.Second * 5)
 	logrus.Println("Server stopped")
 }

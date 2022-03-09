@@ -1,8 +1,8 @@
 package service
 
 import (
-	"JWT_auth/internal/models"
-	"JWT_auth/internal/repository"
+	"github.com/EMus88/Market/internal/models"
+	"github.com/EMus88/Market/internal/repository"
 
 	"github.com/gofrs/uuid"
 	"github.com/sirupsen/logrus"

@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"JWT_auth/internal/models"
 	"context"
 	"errors"
 
+	"github.com/EMus88/Market/internal/models"
 	"github.com/sirupsen/logrus"
 )
 
