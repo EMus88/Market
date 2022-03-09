@@ -1,6 +1,7 @@
 package handler
 
 import (
+	_ "JWT_auth/docs"
 	"JWT_auth/internal/models"
 	"JWT_auth/internal/service"
 	"math"
@@ -8,6 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 // @title Internet-shop API
@@ -68,6 +71,9 @@ func (h *Handler) Init() *gin.Engine {
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": "Not allowed request"})
 	})
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	return router
 }
 

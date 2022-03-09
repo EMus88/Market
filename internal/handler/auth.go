@@ -124,6 +124,15 @@ func (h *Handler) SignUp(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// @Summary SignUp
+// @Tags auth
+// @Descriotion create account
+// @ID signIn
+// @Accept json
+// @Produce json
+// @Param input body models.User true "account info"
+// @Success 200 {object} models.user
+
 func (h *Handler) SignIn(c *gin.Context) {
 	var user models.User
 	//parse request
