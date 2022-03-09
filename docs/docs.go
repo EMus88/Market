@@ -160,7 +160,7 @@ const docTemplate = `{
                         }
                     },
                     "411": {
-                        "description": "{\"error\":\"Password length will be from 7 to 50 simbols\"}",
+                        "description": "{\"error\":\"Not allowed lengths of data\"}",
                         "schema": {
                             "type": "string"
                         }

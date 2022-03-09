@@ -118,7 +118,7 @@ func (h *Handler) AddAddmin(c *gin.Context) {
 // @Success 200 {object} models.User
 // @Failure 400 {string} json "{"error":"Not allowed request"}"
 // @Failure 409 {string} json "{"error":"credential error"}"
-// @Failure 411 {string} json "{"error":"Password length will be from 7 to 50 simbols"}"
+// @Failure 411 {string} json "{"error":"Not allowed lengths of data"}"
 // @Failure 500 {string} json "{"error":"Internal server error"}"
 // @Router /auth/signUp [post]
 func (h *Handler) SignUp(c *gin.Context) {
@@ -134,8 +134,8 @@ func (h *Handler) SignUp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Not allowed request"})
 		return
 	}
-	if (len(user.Password) < 7) || (len(user.Password) > 50) {
-		c.JSON(http.StatusLengthRequired, gin.H{"error": "Password length will be from 7 to 50 simbols"})
+	if (len(user.Password) < 7) || (len(user.Password) > 50) || (len(user.Username) > 50) {
+		c.JSON(http.StatusLengthRequired, gin.H{"error": "Not allowed lengths of data"})
 		return
 	}
 	user.Role = userRole
