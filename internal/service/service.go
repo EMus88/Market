@@ -5,6 +5,7 @@ import (
 	"JWT_auth/internal/repository"
 
 	"github.com/gofrs/uuid"
+	"github.com/sirupsen/logrus"
 )
 
 type Repository interface {
@@ -23,8 +24,13 @@ type Repository interface {
 type Service struct {
 	Repository
 	Auth
+	logger *logrus.Logger
 }
 
-func NewService(r *repository.Repository) *Service {
-	return &Service{Repository: r, Auth: *NewAuth(r)}
+func NewService(r *repository.Repository, logger *logrus.Logger) *Service {
+	return &Service{
+		Repository: r,
+		Auth:       *NewAuth(r),
+		logger:     logger,
+	}
 }

@@ -102,7 +102,8 @@ func (h *Handler) SignUp(c *gin.Context) {
 	var user model.User
 	//parse request
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		h.logger.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Not allowed request"})
 		return
 	}
 	//validation request

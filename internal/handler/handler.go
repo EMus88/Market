@@ -6,16 +6,21 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 const userRole = "user"
 
 type Handler struct {
 	service *service.Service
+	logger  *logrus.Logger
 }
 
-func NewHandler(service *service.Service) *Handler {
-	return &Handler{service: service}
+func NewHandler(service *service.Service, logger *logrus.Logger) *Handler {
+	return &Handler{
+		service: service,
+		logger:  logger,
+	}
 }
 
 //init routers =====================================================================

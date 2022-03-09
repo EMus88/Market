@@ -8,7 +8,6 @@ import (
 
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -37,7 +36,6 @@ func NewDB(ctx context.Context) (*pgx.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	logrus.Println("DB connection success")
 	return conn, nil
 }
 
@@ -65,8 +63,5 @@ func AutoMigration(isAllowed bool) error {
 	}
 
 	db.Exec("ALTER TABLE products ADD CONSTRAINT category_fk FOREIGN KEY (category_id) REFERENCES categories(id)")
-
-	logrus.Println("Migration success")
-
 	return nil
 }

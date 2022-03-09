@@ -21,6 +21,7 @@ func (r *Repository) SaveUser(user *model.User) (string, error) {
 	row.Scan(&id)
 	err := row.Scan().Error()
 	if err != result {
+		r.logger.Error(err)
 		if strings.Contains(err, "SQLSTATE 23505") {
 			return "", errors.New("error: user already exist")
 		}
@@ -37,9 +38,11 @@ func (r *Repository) GetUser(user *model.User) (string, string, error) {
 	q := `SELECT id,role FROM users
 	WHERE
 		username=$1 AND password=$2;`
-	r.db.QueryRow(context.Background(), q, user.Username, user.Password).Scan(&id, &role)
+	row := r.db.QueryRow(context.Background(), q, user.Username, user.Password)
+	row.Scan(&id, &role)
 	if id == "" {
-		return "", "", errors.New("error: user not found")
+		r.logger.Error(row.Scan().Error())
+		return "", "", errors.New("error: internal DB error")
 	}
 	return id, role, nil
 }
@@ -50,6 +53,10 @@ func (r *Repository) CheckUser(id uuid.UUID) (string, error) {
 	q := `SELECT role FROM users
 	WHERE
 		id=$1;`
-	r.db.QueryRow(context.Background(), q, id).Scan(&role)
+	row := r.db.QueryRow(context.Background(), q, id).Scan(&role)
+	if role == "" {
+		r.logger.Error(row.Error())
+		return "", errors.New("error: internal DB error")
+	}
 	return role, nil
 }

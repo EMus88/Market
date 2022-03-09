@@ -28,22 +28,23 @@ func main() {
 
 	//init configs
 	if err := configs.InitConfig(); err != nil {
-		logrus.Fatal(err)
+		logger.Fatal(err)
 	}
 	//db connection
 	db, err := repository.NewDB(context.Background())
 	if err != nil {
-		logrus.Fatal("No database connection ")
+		logger.Fatal("No database connection ")
 	}
+	logger.Info("DB connection success")
 	//migration
 	if err := repository.AutoMigration(viper.GetBool("db.migration.isAllowed")); err != nil {
-		logrus.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	//init main components
-	r := repository.NewRepository(db)
-	s := service.NewService(r)
-	h := handler.NewHandler(s)
+	r := repository.NewRepository(db, logger)
+	s := service.NewService(r, logger)
+	h := handler.NewHandler(s, logger)
 
 	//init server
 	adr := fmt.Sprint(viper.GetString("host"), ":", viper.GetString("port"))
@@ -54,7 +55,7 @@ func main() {
 	//run server
 	go server.ListenAndServe()
 
-	logrus.Printf("Server started by address: %s", adr)
+	logger.Infof("Server started by address: %s", adr)
 
 	//shutdown
 	quit := make(chan os.Signal, 1)

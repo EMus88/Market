@@ -4,15 +4,20 @@ import (
 	"JWT_auth/internal/model"
 	"context"
 	"errors"
-	"log"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Repository struct {
-	db DB
+	db     DB
+	logger *logrus.Logger
 }
 
-func NewRepository(db DB) *Repository {
-	return &Repository{db: db}
+func NewRepository(db DB, logger *logrus.Logger) *Repository {
+	return &Repository{
+		db:     db,
+		logger: logger,
+	}
 }
 
 func (r *Repository) AddCategory(m *model.Category) error {
@@ -20,8 +25,9 @@ func (r *Repository) AddCategory(m *model.Category) error {
 	q := `INSERT INTO categories(category)
  		VALUES($1)
 RETURNING id;`
-	r.db.QueryRow(context.Background(), q, m.Name).Scan(&id)
+	row := r.db.QueryRow(context.Background(), q, m.Name).Scan(&id)
 	if id == "" {
+		r.logger.Error(row.Error())
 		return errors.New("error: internal db error")
 	}
 	return nil
@@ -34,8 +40,9 @@ func (r *Repository) AddProduct(m *model.ProductDTO) error {
 		(SELECT id FROM categories
 			WHERE category=$8))
 RETURNING id;`
-	r.db.QueryRow(context.Background(), q, m.Name, m.Weight, m.Valume, m.Description, m.Photo, m.Price, m.Visible, m.Category).Scan(&id)
+	row := r.db.QueryRow(context.Background(), q, m.Name, m.Weight, m.Valume, m.Description, m.Photo, m.Price, m.Visible, m.Category).Scan(&id)
 	if id == "" {
+		r.logger.Error(row.Error())
 		return errors.New("error: internal db error")
 	}
 	return nil
@@ -47,6 +54,7 @@ func (r *Repository) ChangeVisible(v *model.Visible) error {
 		WHERE name=$2;`
 	_, err := r.db.Exec(context.Background(), q, v.Visible, v.Name)
 	if err != nil {
+		r.logger.Error(err)
 		return errors.New("error: internal db error")
 	}
 
@@ -62,6 +70,7 @@ func (r *Repository) GetCatalog() ([]model.ProductDTO, error) {
 	ORDER BY name`
 	rows, err := r.db.Query(context.Background(), q)
 	if err != nil {
+		r.logger.Error(err)
 		return nil, errors.New("error: internal db error")
 	}
 	for rows.Next() {
@@ -70,7 +79,7 @@ func (r *Repository) GetCatalog() ([]model.ProductDTO, error) {
 		err := rows.Scan(&product.Name, &product.Weight, &product.Valume, &product.Description, &product.Photo, &price, &product.Category)
 		product.Price = float32(price / 100)
 		if err != nil {
-			log.Println(err)
+			r.logger.Error(err)
 			return nil, errors.New("error: internal db error")
 		}
 		catalog = append(catalog, product)
@@ -87,6 +96,7 @@ func (r *Repository) GetByCategory(productName string, category string) ([]model
 		(SELECT id FROM categories WHERE category=$2) AND visible=true;`
 	rows, err := r.db.Query(context.Background(), q, productName, category)
 	if err != nil {
+		r.logger.Error(err)
 		return nil, errors.New("error: internal db error")
 	}
 	for rows.Next() {
@@ -95,10 +105,9 @@ func (r *Repository) GetByCategory(productName string, category string) ([]model
 		err := rows.Scan(&product.Name, &product.Weight, &product.Valume, &product.Description, &product.Photo, &price)
 		product.Price = float32(price / 100)
 		if err != nil {
-			log.Println(err)
+			r.logger.Error(err)
 			return nil, errors.New("error: internal db error")
 		}
-		log.Println(product)
 		result = append(result, product)
 
 	}
@@ -112,6 +121,7 @@ func (r *Repository) GetByAllCategories(productName string) ([]model.ProductDTO,
 		WHERE name @@ $1 AND visible=true;`
 	rows, err := r.db.Query(context.Background(), q, productName)
 	if err != nil {
+		r.logger.Error(err)
 		return nil, errors.New("error: internal db error")
 	}
 	for rows.Next() {
@@ -120,10 +130,9 @@ func (r *Repository) GetByAllCategories(productName string) ([]model.ProductDTO,
 		err := rows.Scan(&product.Name, &product.Weight, &product.Valume, &product.Description, &product.Photo, &price)
 		product.Price = float32(price / 100)
 		if err != nil {
-			log.Println(err)
+			r.logger.Error(err)
 			return nil, errors.New("error: internal db error")
 		}
-		log.Println(product)
 		result = append(result, product)
 
 	}
