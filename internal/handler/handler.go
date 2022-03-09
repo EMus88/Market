@@ -1,27 +1,18 @@
 package handler
 
 import (
-	_ "JWT_auth/docs"
-	"JWT_auth/internal/models"
-	"JWT_auth/internal/service"
 	"math"
 	"net/http"
+
+	_ "github.com/EMus88/Market/docs"
+	"github.com/EMus88/Market/internal/models"
+	"github.com/EMus88/Market/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
-
-// @title Internet-shop API
-// @version 1.0
-// @description API Server for catalog of internet-shop
-
-// @host localhost:8000
-
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
 
 const userRole = "user"
 
@@ -78,6 +69,14 @@ func (h *Handler) Init() *gin.Engine {
 }
 
 //adding new category ============================================================
+// @Summary Add category
+// @Tags catalog
+// @Descriotion add new category
+// @Accept json
+// @Produce json
+// @Param input body models.Category true "new category name"
+// @Success 200
+// @Router /catalog/category [post]
 func (h *Handler) AddCategory(c *gin.Context) {
 	//bindig request
 	var category models.Category
@@ -90,10 +89,18 @@ func (h *Handler) AddCategory(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-
+	c.Status(http.StatusOK)
 }
 
 // adding new product ==============================================================
+// @Summary Add product
+// @Tags catalog
+// @Descriotion add new product
+// @Accept json
+// @Produce json
+// @Param input body models.ProductDTO true "product info"
+// @Success 200
+// @Router /catalog/product [post]
 func (h *Handler) AddProduct(c *gin.Context) {
 	//bindig request
 	var product models.ProductDTO
@@ -113,6 +120,14 @@ func (h *Handler) AddProduct(c *gin.Context) {
 }
 
 //changing product visible in catalog ================================================
+// @Summary Change visible
+// @Tags catalog
+// @Descriotion Change visible of product in catalog
+// @Accept json
+// @Produce json
+// @Param input body models.Visible true "product info"
+// @Success 200
+// @Router /catalog/product/change [post]
 func (h *Handler) ChangeVisible(c *gin.Context) {
 	//bindig request
 	var visible models.Visible
