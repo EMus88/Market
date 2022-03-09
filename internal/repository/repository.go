@@ -80,7 +80,7 @@ func (r *Repository) GetCatalog() ([]models.ProductDTO, error) {
 		var product models.ProductDTO
 		var price int
 		err := rows.Scan(&product.Name, &product.Weight, &product.Valume, &product.Description, &product.Photo, &price, &product.Category)
-		product.Price = float64(price / 100)
+		product.Price = float64(price) / 100
 		if err != nil {
 			r.logger.Error(err)
 			return nil, errors.New("error: internal db error")

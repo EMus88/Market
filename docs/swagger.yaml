@@ -51,8 +51,17 @@ definitions:
     - valume
     - weight
     type: object
+  models.UpdateRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
   models.User:
     properties:
+      full_name:
+        type: string
       password:
         type: string
       phone:
@@ -100,7 +109,48 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
+        "400":
+          description: '{"error":"Not allowed request"}'
+          schema:
+            type: string
+        "500":
+          description: '{"error":"Internal server error"}'
+          schema:
+            type: string
       summary: Add administrator
+      tags:
+      - auth
+  /auth/signIn:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"access token":"...","refresh token":"..."}'
+          schema:
+            type: string
+        "400":
+          description: '{"error":"Not allowed request"}'
+          schema:
+            type: string
+        "401":
+          description: '{"error":"User not found"}'
+          schema:
+            type: string
+        "500":
+          description: '{"error":"Internal server error"}'
+          schema:
+            type: string
+      summary: Authorizaton
       tags:
       - auth
   /auth/signUp:
@@ -121,15 +171,86 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
+        "400":
+          description: '{"error":"Not allowed request"}'
+          schema:
+            type: string
+        "409":
+          description: '{"error":"credential error"}'
+          schema:
+            type: string
+        "411":
+          description: '{"error":"Password length will be from 7 to 50 simbols"}'
+          schema:
+            type: string
+        "500":
+          description: '{"error":"Internal server error"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
       summary: Registration
       tags:
       - auth
+  /auth/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: refresh token
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"access token":"...","refresh token":"..."}'
+          schema:
+            type: string
+        "400":
+          description: '{"error":"Not allowed request"}'
+          schema:
+            type: string
+        "401":
+          description: '{"error":"Not valid refresh token"}'
+          schema:
+            type: string
+        "500":
+          description: '{"error":"Internal server error"}'
+          schema:
+            type: string
+      summary: Update tokens
+      tags:
+      - auth
+  /catalog:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+        "401":
+          description: '{"error":"unauthenticated"}'
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Show catalog
+      tags:
+      - catalog
   /catalog/category:
     post:
       consumes:
       - application/json
       parameters:
-      - description: new category name
+      - description: name of catgory
         in: body
         name: input
         required: true
@@ -139,8 +260,22 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
-      summary: Add category
+          description: Ok
+        "400":
+          description: Bad request
+        "401":
+          description: '{"error":"unauthenticated"}'
+          schema:
+            type: string
+        "409":
+          description: '{"error":"credential error"}'
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Add new category
       tags:
       - catalog
   /catalog/product:
@@ -158,16 +293,30 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
-      summary: Add product
+          description: Ok
+        "400":
+          description: Bad request
+        "401":
+          description: '{"error":"unauthenticated"}'
+          schema:
+            type: string
+        "409":
+          description: '{"error":"credential error"}'
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Add new product
       tags:
       - catalog
   /catalog/product/change:
-    post:
+    put:
       consumes:
       - application/json
       parameters:
-      - description: product info
+      - description: name of product
         in: body
         name: input
         required: true
@@ -177,8 +326,54 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: Ok
+        "400":
+          description: Bad request
+        "401":
+          description: '{"error":"unauthenticated"}'
+          schema:
+            type: string
+        "409":
+          description: '{"error":"credential error"}'
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
       summary: Change visible
+      tags:
+      - catalog
+  /catalog/search:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Category
+        in: query
+        name: category
+        type: string
+      - description: Product
+        in: query
+        name: product
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+        "400":
+          description: Bad request
+        "401":
+          description: '{"error":"unauthenticated"}'
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+      security:
+      - ApiKeyAuth: []
+      summary: Search in catalog
       tags:
       - catalog
 securityDefinitions:

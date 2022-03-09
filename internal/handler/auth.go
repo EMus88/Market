@@ -42,30 +42,30 @@ func (h *Handler) IsAdminMiddleware(c *gin.Context) {
 	//getting claims from token
 	id, role, err := h.service.ValidateToken(bearerToken, "access")
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "credential error"})
+		c.JSON(http.StatusConflict, gin.H{"error": "credential error"})
 		c.Abort()
 		return
 	}
 	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "credential error"})
+		c.JSON(http.StatusConflict, gin.H{"error": "credential error"})
 		c.Abort()
 		return
 	}
 	uuidID, err := uuid.FromString(id)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "credential error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		c.Abort()
 		return
 	}
 	//check admin in db
 	roleFromDB, err := h.service.CheckUser(uuidID)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "credential error"})
+		c.JSON(http.StatusConflict, gin.H{"error": "credential error"})
 		c.Abort()
 		return
 	}
 	if roleFromDB != role {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "credential error"})
+		c.JSON(http.StatusConflict, gin.H{"error": "credential error"})
 		c.Abort()
 		return
 	}
@@ -79,16 +79,18 @@ func (h *Handler) IsAdminMiddleware(c *gin.Context) {
 // @Produce json
 // @Param input body models.Admin true "account info"
 // @Success 200 {object} models.User
+// @Failure 400 {string} json "{"error":"Not allowed request"}"
+// @Failure 500 {string} json "{"error":"Internal server error"}"
 // @Router /auth/admin [post]
 func (h *Handler) AddAddmin(c *gin.Context) {
 	var admin models.Admin
 	//parse request
 	if err := c.ShouldBindJSON(&admin); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Not allowed request"})
 		return
 	}
 	if admin.Code != os.Getenv("ADMINCODE") {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "not valid data"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Not allowed request"})
 		return
 	}
 	var user models.User
@@ -106,14 +108,18 @@ func (h *Handler) AddAddmin(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-//Registration
 // @Summary Registration
+// @Security ApiKeyAuth
 // @Tags auth
-// @Descriotion autorization
+// @Descriotion registration new user
 // @Accept json
 // @Produce json
 // @Param input body models.User true "account info"
 // @Success 200 {object} models.User
+// @Failure 400 {string} json "{"error":"Not allowed request"}"
+// @Failure 409 {string} json "{"error":"credential error"}"
+// @Failure 411 {string} json "{"error":"Password length will be from 7 to 50 simbols"}"
+// @Failure 500 {string} json "{"error":"Internal server error"}"
 // @Router /auth/signUp [post]
 func (h *Handler) SignUp(c *gin.Context) {
 	var user models.User
@@ -128,8 +134,8 @@ func (h *Handler) SignUp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Not allowed request"})
 		return
 	}
-	if (len(user.Password) < 7) || (len(user.Password) > 20) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "password length will be from 7 to 15 simbols"})
+	if (len(user.Password) < 7) || (len(user.Password) > 50) {
+		c.JSON(http.StatusLengthRequired, gin.H{"error": "Password length will be from 7 to 50 simbols"})
 		return
 	}
 	user.Role = userRole
@@ -141,39 +147,51 @@ func (h *Handler) SignUp(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// Login
-// @Summary Authorization
+// @Summary Authorizaton
 // @Tags auth
-// @Descriotion authorization
+// @Descriotion authorization user in system
 // @Accept json
 // @Produce json
 // @Param input body models.User true "account info"
-// @Success 200
+// @Success 200 {string} json "{"access token":"...","refresh token":"..."}"
+// @Failure 400 {string} json "{"error":"Not allowed request"}"
+// @Failure 401 {string} json "{"error":"User not found"}"
+// @Failure 500 {string} json "{"error":"Internal server error"}"
 // @Router /auth/signIn [post]
-
 func (h *Handler) SignIn(c *gin.Context) {
 	var user models.User
 	//parse request
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Not allowed request"})
 		return
 	}
 	//check user in db
 	user.Password = h.service.Auth.HashingPassword(user.Password)
 	id, role, err := h.service.Repository.GetUser(&user)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
 	}
 	//create tokens
 	t, rt, err := h.service.Auth.GenerateTokenPair(id, role)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"access token": t, "refresh token": rt})
 }
 
+// @Summary Update tokens
+// @Tags auth
+// @Descriotion refresing tokens
+// @Accept json
+// @Produce json
+// @Param input body models.UpdateRequest true "refresh token"
+// @Success 200 {string} json "{"access token":"...","refresh token":"..."}"
+// @Failure 400 {string} json "{"error":"Not allowed request"}"
+// @Failure 401 {string} json "{"error":"Not valid refresh token"}"
+// @Failure 500 {string} json "{"error":"Internal server error"}"
+// @Router /auth/update [post]
 func (h *Handler) TokenRefreshing(c *gin.Context) {
 	var request models.UpdateRequest
 	//read refresh token
@@ -184,13 +202,13 @@ func (h *Handler) TokenRefreshing(c *gin.Context) {
 	//validate token
 	id, role, err := h.service.ValidateToken(request.RefreshToken, "refresh")
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "not valid refresh token"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Not valid refresh token"})
 		return
 	}
 	//if validate is ok -> create new tokens
 	t, rt, err := h.service.Auth.GenerateTokenPair(id, role)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 	//sent response

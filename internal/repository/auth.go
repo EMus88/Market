@@ -15,10 +15,10 @@ const result = "no rows in result set"
 //save user in db
 func (r *Repository) SaveUser(user *models.User) (string, error) {
 	var id string
-	q := `INSERT INTO users(username,phone,password,role)
-    VALUES($1,$2,$3,$4)
+	q := `INSERT INTO users(username,phone,password,role,full_name)
+    VALUES($1,$2,$3,$4,$5)
 	RETURNING id;`
-	row := r.db.QueryRow(context.Background(), q, user.Username, user.Phone, user.Password, user.Role)
+	row := r.db.QueryRow(context.Background(), q, user.Username, user.Phone, user.Password, user.Role, user.FullName)
 	row.Scan(&id)
 	err := row.Scan().Error()
 	if err != result {

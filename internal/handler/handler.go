@@ -68,14 +68,18 @@ func (h *Handler) Init() *gin.Engine {
 	return router
 }
 
-//adding new category ============================================================
-// @Summary Add category
+// @Summary Add new category
+// @Security ApiKeyAuth
 // @Tags catalog
 // @Descriotion add new category
 // @Accept json
 // @Produce json
-// @Param input body models.Category true "new category name"
-// @Success 200
+// @Param input body models.Category true "name of catgory"
+// @Success 200 "Ok"
+// @Failure 400 "Bad request"
+// @Failure 401 {string} json "{"error":"unauthenticated"}"
+// @Failure 409 {string} json "{"error":"credential error"}"
+// @Failure 500 "Internal server error"
 // @Router /catalog/category [post]
 func (h *Handler) AddCategory(c *gin.Context) {
 	//bindig request
@@ -92,14 +96,18 @@ func (h *Handler) AddCategory(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// adding new product ==============================================================
-// @Summary Add product
+// @Summary Add new product
+// @Security ApiKeyAuth
 // @Tags catalog
 // @Descriotion add new product
 // @Accept json
 // @Produce json
 // @Param input body models.ProductDTO true "product info"
-// @Success 200
+// @Success 200 "Ok"
+// @Failure 400 "Bad request"
+// @Failure 401 {string} json "{"error":"unauthenticated"}"
+// @Failure 409 {string} json "{"error":"credential error"}"
+// @Failure 500 "Internal server error"
 // @Router /catalog/product [post]
 func (h *Handler) AddProduct(c *gin.Context) {
 	//bindig request
@@ -119,15 +127,19 @@ func (h *Handler) AddProduct(c *gin.Context) {
 	}
 }
 
-//changing product visible in catalog ================================================
 // @Summary Change visible
+// @Security ApiKeyAuth
 // @Tags catalog
-// @Descriotion Change visible of product in catalog
+// @Descriotion Change products visible in catalog
 // @Accept json
 // @Produce json
-// @Param input body models.Visible true "product info"
-// @Success 200
-// @Router /catalog/product/change [post]
+// @Param input body models.Visible true "name of product"
+// @Success 200 "Ok"
+// @Failure 400 "Bad request"
+// @Failure 401 {string} json "{"error":"unauthenticated"}"
+// @Failure 409 {string} json "{"error":"credential error"}"
+// @Failure 500 "Internal server error"
+// @Router /catalog/product/change [put]
 func (h *Handler) ChangeVisible(c *gin.Context) {
 	//bindig request
 	var visible models.Visible
@@ -143,7 +155,16 @@ func (h *Handler) ChangeVisible(c *gin.Context) {
 
 }
 
-//show all catalog ======================================================================
+// @Summary Show catalog
+// @Security ApiKeyAuth
+// @Tags catalog
+// @Descriotion View all products of catalog
+// @Accept json
+// @Produce json
+// @Success 200 "Ok"
+// @Failure 401 {string} json "{"error":"unauthenticated"}"
+// @Failure 500 "Internal server error"
+// @Router /catalog [get]
 func (h *Handler) GetCatalog(c *gin.Context) {
 	catalog, err := h.service.Repository.GetCatalog()
 	if err != nil {
@@ -153,7 +174,19 @@ func (h *Handler) GetCatalog(c *gin.Context) {
 	c.JSON(http.StatusOK, catalog)
 }
 
-//shearch product in catalog =============================================================
+// @Summary Search in catalog
+// @Security ApiKeyAuth
+// @Tags catalog
+// @Descriotion Search products in catalog
+// @Accept json
+// @Produce json
+// @Param category query string false "Category"
+// @Param product query string true "Product"
+// @Success 200 "Ok"
+// @Failure 400 "Bad request"
+// @Failure 401 {string} json "{"error":"unauthenticated"}"
+// @Failure 500 "Internal server error"
+// @Router /catalog/search [get]
 func (h *Handler) Search(c *gin.Context) {
 	category := c.Query("category")
 	productName := c.Query("product")
