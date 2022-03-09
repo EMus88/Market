@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"JWT_auth/internal/model"
+	"JWT_auth/internal/models"
 	"context"
 	"errors"
 	"strings"
@@ -12,7 +12,7 @@ import (
 const result = "no rows in result set"
 
 //save user in db
-func (r *Repository) SaveUser(user *model.User) (string, error) {
+func (r *Repository) SaveUser(user *models.User) (string, error) {
 	var id string
 	q := `INSERT INTO users(username,phone,password,role)
     VALUES($1,$2,$3,$4)
@@ -33,7 +33,7 @@ func (r *Repository) SaveUser(user *model.User) (string, error) {
 }
 
 //get user from db
-func (r *Repository) GetUser(user *model.User) (string, string, error) {
+func (r *Repository) GetUser(user *models.User) (string, string, error) {
 	var id, role string
 	q := `SELECT id,role FROM users
 	WHERE

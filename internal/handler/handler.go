@@ -1,13 +1,24 @@
 package handler
 
 import (
-	"JWT_auth/internal/model"
+	"JWT_auth/internal/models"
 	"JWT_auth/internal/service"
+	"math"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
+
+// @title Internet-shop API
+// @version 1.0
+// @description API Server for catalog of internet-shop
+
+// @host localhost:8000
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 
 const userRole = "user"
 
@@ -39,19 +50,16 @@ func (h *Handler) Init() *gin.Engine {
 		auth.POST("/update", h.TokenRefreshing)
 		auth.POST("/admin", h.AddAddmin)
 	}
-	//add category
-	router.POST("/category", h.AuthMiddleware, h.IsAdminMiddleware, h.AddCategory)
-
-	product := router.Group("/product").Use(h.AuthMiddleware, h.IsAdminMiddleware)
-	{
-		//add product
-		product.POST("/", h.AddProduct)
-		//change products visible in catalog
-		product.PUT("/change", h.ChangeVisible)
-	}
 
 	catalog := router.Group("/catalog").Use(h.AuthMiddleware)
-	{ //get all catalog
+	{
+		//add category
+		catalog.POST("/category", h.IsAdminMiddleware, h.AddCategory)
+		//add product
+		catalog.POST("/product", h.IsAdminMiddleware, h.AddProduct)
+		//change products visible in catalog
+		catalog.PUT("/product/change", h.IsAdminMiddleware, h.ChangeVisible)
+		//get all catalog
 		catalog.GET("/", h.GetCatalog)
 		//search
 		catalog.GET("/search", h.Search)
@@ -66,8 +74,9 @@ func (h *Handler) Init() *gin.Engine {
 //adding new category ============================================================
 func (h *Handler) AddCategory(c *gin.Context) {
 	//bindig request
-	var category model.Category
+	var category models.Category
 	if err := c.ShouldBindJSON(&category); err != nil {
+		h.logger.Error(err)
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -81,23 +90,28 @@ func (h *Handler) AddCategory(c *gin.Context) {
 // adding new product ==============================================================
 func (h *Handler) AddProduct(c *gin.Context) {
 	//bindig request
-	var product model.ProductDTO
+	var product models.ProductDTO
 	if err := c.ShouldBindJSON(&product); err != nil {
+		h.logger.Error(err)
 		c.Status(http.StatusBadRequest)
 		return
 	}
+	//Round float to 2 decimal places
+	product.Price = math.Round(product.Price*100) / 100
+	product.Weight = math.Round(product.Weight*100) / 100
+	product.Valume = math.Round(product.Valume*100) / 100
 	if err := h.service.Repository.AddProduct(&product); err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-
 }
 
 //changing product visible in catalog ================================================
 func (h *Handler) ChangeVisible(c *gin.Context) {
 	//bindig request
-	var visible model.Visible
+	var visible models.Visible
 	if err := c.ShouldBindJSON(&visible); err != nil {
+		h.logger.Error(err)
 		c.Status(http.StatusBadRequest)
 		return
 	}

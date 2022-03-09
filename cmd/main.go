@@ -61,5 +61,6 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
+	<-time.After(time.Second * 2)
 	logrus.Println("Server stopped")
 }

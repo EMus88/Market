@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"JWT_auth/internal/model"
+	"JWT_auth/internal/models"
 	"net/http"
 	"os"
 	"strings"
@@ -72,7 +72,7 @@ func (h *Handler) IsAdminMiddleware(c *gin.Context) {
 
 //add admin
 func (h *Handler) AddAddmin(c *gin.Context) {
-	var admin model.Admin
+	var admin models.Admin
 	//parse request
 	if err := c.ShouldBindJSON(&admin); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -82,7 +82,7 @@ func (h *Handler) AddAddmin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "not valid data"})
 		return
 	}
-	var user model.User
+	var user models.User
 
 	user.Username = admin.Username
 	user.Password = admin.Password
@@ -99,7 +99,7 @@ func (h *Handler) AddAddmin(c *gin.Context) {
 
 //Registration
 func (h *Handler) SignUp(c *gin.Context) {
-	var user model.User
+	var user models.User
 	//parse request
 	if err := c.ShouldBindJSON(&user); err != nil {
 		h.logger.Error(err)
@@ -125,7 +125,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 }
 
 func (h *Handler) SignIn(c *gin.Context) {
-	var user model.User
+	var user models.User
 	//parse request
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -148,7 +148,7 @@ func (h *Handler) SignIn(c *gin.Context) {
 }
 
 func (h *Handler) TokenRefreshing(c *gin.Context) {
-	var request model.UpdateRequest
+	var request models.UpdateRequest
 	//read refresh token
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Not allowed request"})

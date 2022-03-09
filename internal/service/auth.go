@@ -1,7 +1,7 @@
 package service
 
 import (
-	"JWT_auth/internal/model"
+	"JWT_auth/internal/models"
 	"JWT_auth/internal/repository"
 	"crypto/sha1"
 	"errors"
@@ -21,7 +21,7 @@ func NewAuth(repos *repository.Repository) *Auth {
 	return &Auth{Repository: repos}
 }
 
-func (a *Auth) CreateUser(user *model.User) error {
+func (a *Auth) CreateUser(user *models.User) error {
 	//hashing the password
 	user.Password = a.HashingPassword(user.Password)
 

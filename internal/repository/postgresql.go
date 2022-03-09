@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"JWT_auth/internal/model"
+	"JWT_auth/internal/models"
 	"context"
 	"fmt"
 	"os"
@@ -58,7 +58,7 @@ func AutoMigration(isAllowed bool) error {
 		return err
 	}
 	//run automigration
-	if err := db.AutoMigrate(&model.User{}, &model.Product{}, &model.Category{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.Product{}, &models.Category{}); err != nil {
 		return err
 	}
 
